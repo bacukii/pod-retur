@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <!-- PWA Meta Tags -->
+  <title>POD Retur by Mitchell</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#dc2626">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="description" content="Tool auto-replace header POD Retur J&T">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    #finalImage {
+      -webkit-touch-callout: default;
+      pointer-events: auto;
+      user-select: auto;
+    }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col pb-16">
+
+  <!-- Header -->
+  <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-50 shadow-md">
+    <div class="max-w-4xl mx-auto flex items-center gap-3">
+      <div class="bg-red-600 p-2 rounded-lg flex items-center justify-center w-12 h-12 shadow-lg border border-red-500">
+        <span class="text-white font-black italic text-[16px] tracking-tighter">J&T</span>
+      </div>
+      <div class="flex items-center h-12">
+        <h1 class="font-bold text-2xl leading-none text-red-500 flex items-baseline gap-1.5">
+          POD Retur <span class="text-slate-300 font-normal text-sm">by Mitchell</span>
+        </h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-4xl mx-auto w-full p-4 flex flex-col gap-6">
+
+    <!-- PANEL 1: UPLOAD & KONTROL -->
+    <section class="bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-700">
+      <div class="p-4 border-b border-slate-700 bg-slate-800/50">
+        <h2 class="font-semibold text-red-400 flex items-center gap-2">
+          <i class="fas fa-sliders-h"></i> Panel Kontrol
+        </h2>
+      </div>
+      
+      <div class="p-4 space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 relative overflow-hidden">
+            <label class="block text-xs text-slate-400 mb-2 font-semibold uppercase">1. Gambar Chat Utama (Base)</label>
+            <input type="file" id="uploadBase" accept="image/*" class="block w-full text-sm text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-red-500/10 file:text-red-400 hover:file:bg-red-500/20 cursor-pointer">
+          </div>
+          <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 relative overflow-hidden">
+            <label class="block text-xs text-slate-400 mb-2 font-semibold uppercase">2. Header Pengganti</label>
+            <input type="file" id="uploadHeader" accept="image/*" class="block w-full text-sm text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20 cursor-pointer">
+          </div>
+        </div>
+
+        <div class="space-y-4 bg-slate-900 p-4 rounded-xl border border-slate-700">
+          <div class="flex justify-between items-center mb-2 border-b border-slate-700 pb-3">
+            <h3 class="text-slate-300 text-sm font-semibold">Edit Nilai Potongan</h3>
+            <div class="flex items-center gap-3">
+              <span id="lockText" class="text-xs font-bold uppercase tracking-wider text-red-400">LOCKED</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="toggleLock" class="sr-only peer" checked>
+                <div class="w-11 h-6 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+              </label>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-slate-300">Tinggi Header (Potongan)</span>
+            <div class="flex items-center gap-2">
+              <input type="number" id="valHeight" value="300" class="w-20 bg-slate-800 border border-slate-600 text-red-400 font-mono rounded px-2 py-1.5 text-sm text-center focus:border-red-500 outline-none transition-colors">
+              <span class="text-xs text-slate-500 font-mono w-4">px</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-slate-300">Posisi Potong Asal (Lewati Status Bar)</span>
+            <div class="flex items-center gap-2">
+              <input type="number" id="valSourceY" value="0" class="w-20 bg-slate-800 border border-slate-600 text-red-400 font-mono rounded px-2 py-1.5 text-sm text-center focus:border-red-500 outline-none transition-colors">
+              <span class="text-xs text-slate-500 font-mono w-4">px</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-slate-300">Posisi Tempel (Geser ke bawah)</span>
+            <div class="flex items-center gap-2">
+              <input type="number" id="valTargetY" value="0" class="w-20 bg-slate-800 border border-slate-600 text-red-400 font-mono rounded px-2 py-1.5 text-sm text-center focus:border-red-500 outline-none transition-colors">
+              <span class="text-xs text-slate-500 font-mono w-4">px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Canvas Tersembunyi -->
+    <canvas id="hiddenCanvas" class="hidden"></canvas>
+
+    <!-- PANEL 2: AREA HASIL EKSPOR -->
+    <section id="exportSection" class="bg-red-900/20 border-2 border-red-500/50 rounded-2xl p-4 text-center hidden">
+      <div class="flex items-center justify-between mb-3 border-b border-red-500/30 pb-3">
+        <h2 class="font-bold text-red-400 text-sm flex items-center gap-2">
+          <i class="fas fa-check-circle"></i> Hasil Gambar
+        </h2>
+        <button id="btnDownload" class="bg-red-600 hover:bg-red-500 active:bg-red-700 text-white text-[11px] px-3 py-1.5 rounded font-bold uppercase tracking-wide flex items-center gap-1.5 shadow-md border border-red-500 transition-colors">
+          <i class="fas fa-download"></i> Download
+        </button>
+      </div>
+
+      <div class="flex justify-center">
+        <img id="finalImage" class="max-w-full rounded-lg shadow-2xl border border-slate-600 max-h-[70vh] object-contain bg-slate-900 cursor-pointer" alt="Hasil Render">
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const state = {
+      baseImg: null, headerImg: null,
+      height: 300, sourceY: 0, targetY: 0,
+      ghostingEnabled: true, ghostingColor: '#ffffff'   
+    };
+
+    const ui = {
+      uploadBase: document.getElementById('uploadBase'),
+      uploadHeader: document.getElementById('uploadHeader'),
+      valHeight: document.getElementById('valHeight'),
+      valSourceY: document.getElementById('valSourceY'),
+      valTargetY: document.getElementById('valTargetY'),
+      toggleLock: document.getElementById('toggleLock'),
+      lockText: document.getElementById('lockText'),
+      canvas: document.getElementById('hiddenCanvas'),
+      exportSection: document.getElementById('exportSection'),
+      finalImage: document.getElementById('finalImage'),
+      btnDownload: document.getElementById('btnDownload')
+    };
+
+    const ctx = ui.canvas.getContext('2d');
+
+    function init() {
+      ui.uploadBase.addEventListener('change', (e) => handleUpload(e, 'base'));
+      ui.uploadHeader.addEventListener('change', (e) => handleUpload(e, 'header'));
+
+      const inputs = [ui.valHeight, ui.valSourceY, ui.valTargetY];
+      
+      const updateValues = () => {
+        state.height = parseInt(ui.valHeight.value) || 0;
+        state.sourceY = parseInt(ui.valSourceY.value) || 0;
+        state.targetY = parseInt(ui.valTargetY.value) || 0;
+        render();
+      };
+
+      inputs.forEach(input => input.addEventListener('input', updateValues));
+
+      const handleLock = (e) => {
+        const isLocked = e.target.checked;
+        ui.lockText.textContent = isLocked ? 'LOCKED' : 'UNLOCKED';
+        ui.lockText.className = isLocked 
+          ? 'text-xs font-bold uppercase tracking-wider text-red-400' 
+          : 'text-xs font-bold uppercase tracking-wider text-slate-400';
+
+        inputs.forEach(input => {
+          input.disabled = isLocked;
+          if(isLocked) {
+            input.classList.add('opacity-50', 'cursor-not-allowed', 'bg-slate-700');
+            input.classList.remove('bg-slate-800', 'text-red-400');
+            input.classList.add('text-slate-400');
+          } else {
+            input.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-slate-700');
+            input.classList.add('bg-slate-800', 'text-red-400');
+            input.classList.remove('text-slate-400');
+          }
+        });
+      };
+
+      ui.toggleLock.addEventListener('change', handleLock);
+      handleLock({ target: ui.toggleLock });
+
+      ui.btnDownload.addEventListener('click', downloadImage);
+      
+      // Mendaftarkan Service Worker untuk PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .then((reg) => console.log('Service Worker terdaftar di scope:', reg.scope))
+            .catch((err) => console.log('Pendaftaran Service Worker gagal:', err));
+        });
+      }
+    }
+
+    function handleUpload(event, type) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          if (type === 'base') state.baseImg = img;
+          else state.headerImg = img;
+          checkReady();
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function checkReady() {
+      if (state.baseImg) {
+        ui.exportSection.classList.remove('hidden');
+        ui.exportSection.classList.add('flex', 'flex-col');
+        render();
+      }
+    }
+
+    function render() {
+      if (!state.baseImg) return;
+
+      const bw = state.baseImg.width;
+      const bh = state.baseImg.height;
+      ui.canvas.width = bw;
+      ui.canvas.height = bh;
+
+      ctx.drawImage(state.baseImg, 0, 0, bw, bh);
+
+      if (state.ghostingEnabled) {
+        ctx.fillStyle = state.ghostingColor;
+        ctx.fillRect(0, 0, bw, state.targetY + state.height);
+      }
+
+      if (state.headerImg) {
+        const cropH = state.height;
+        const scaleH = bw / state.headerImg.width;
+        const sourceH = cropH / scaleH;
+
+        ctx.drawImage(
+          state.headerImg,
+          0, state.sourceY, state.headerImg.width, sourceH,
+          0, state.targetY, bw, cropH
+        );
+      }
+
+      ui.finalImage.src = ui.canvas.toDataURL('image/png', 1.0);
+    }
+
+    function downloadImage() {
+      const dataUrl = ui.finalImage.src;
+      if (!dataUrl || dataUrl.length < 10) return;
+      const timestamp = new Date().getTime();
+      const link = document.createElement('a');
+      link.download = `POD_Retur_${timestamp}.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
+
