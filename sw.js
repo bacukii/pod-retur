@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pod-retur-v8';
+const CACHE_NAME = 'pod-retur-v9';
 const ASSETS_TO_CACHE = [
   './index.html',
   './manifest.json',
@@ -37,11 +37,4 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js', {
-    // Memaksa browser mengecek pembaruan sw.js langsung ke server (bypass HTTP cache)
-    updateViaCache: 'none' 
-  });
-}
 
