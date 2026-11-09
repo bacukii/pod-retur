@@ -257,20 +257,31 @@
         );
       }
 
-      ui.finalImage.src = ui.canvas.toDataURL('image/png', 1.0);
+      // Ubah preview menjadi JPEG (lebih ringan dirender di tag <img>)
+      ui.finalImage.src = ui.canvas.toDataURL('image/jpeg', 0.8);
     }
 
     function downloadImage() {
-      const dataUrl = ui.finalImage.src;
-      if (!dataUrl || dataUrl.length < 10) return;
-      const timestamp = new Date().getTime();
-      const link = document.createElement('a');
-      link.download = `POD_Retur_${timestamp}.png`;
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Gunakan toBlob alih-alih toDataURL untuk mencegah browser crash karena URL terlalu panjang
+      ui.canvas.toBlob((blob) => {
+        if (!blob) return;
+        
+        const blobUrl = URL.createObjectURL(blob);
+        const timestamp = new Date().getTime();
+        const link = document.createElement('a');
+        
+        link.download = `POD_Retur_${timestamp}.jpg`; // Ekspor sebagai JPG
+        link.href = blobUrl;
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Segera bersihkan memori setelah didownload
+        URL.revokeObjectURL(blobUrl); 
+      }, 'image/jpeg', 0.85); // Kualitas 85% - Cukup tajam untuk teks resi, tapi ukuran file kecil
     }
+
 
     window.addEventListener('DOMContentLoaded', init);
   </script>
