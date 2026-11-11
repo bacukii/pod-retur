@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pod-retur-v13';
+const CACHE_NAME = 'pod-retur-v14';
 const ASSETS_TO_CACHE = [
   './index.html',
   './manifest.json',
