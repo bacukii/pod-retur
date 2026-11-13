@@ -1,20 +1,29 @@
-const CACHE_NAME = 'pod-retur-v18';
+const CACHE_NAME = 'pod-retur-v19'; // Jangan lupa naikkan versi!
 
-const ASSETS_TO_CACHE = [
+// Pisahkan aset wajib (lokal) dan aset opsional/berat (CDN)
+const LOCAL_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png',
+  './icon-512.png'
+];
+
+const CDN_ASSETS = [
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(ASSETS_TO_CACHE))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => {
+      // 1. Cache aset eksternal/CDN secara asinkron tanpa memblokir instalasi
+      CDN_ASSETS.forEach((url) => {
+        cache.add(url).catch((err) => console.warn('[SW] Gagal pre-cache CDN (Aman diabaikan):', url));
+      });
+      // 2. Cache aset lokal wajib secara all-or-nothing
+      return cache.addAll(LOCAL_ASSETS);
+    }).then(() => self.skipWaiting())
   );
 });
 
@@ -31,7 +40,8 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (!event.request.url.startsWith('http')) return;
+  // Hanya proses metode GET dan URL HTTP/HTTPS
+  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
@@ -41,7 +51,7 @@ self.addEventListener('fetch', (event) => {
 
       return fetch(event.request)
         .then((networkResponse) => {
-          // Hanya cache response yang valid
+          // Validasi response jaringan
           if (
             !networkResponse ||
             networkResponse.status !== 200 ||
@@ -63,3 +73,4 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
