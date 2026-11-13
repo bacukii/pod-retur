@@ -169,12 +169,32 @@
       ui.uploadBase.addEventListener('change', (e) => handleUpload(e, 'base'));
       ui.uploadHeader.addEventListener('change', (e) => handleUpload(e, 'header'));
 
+      // Pemulihan draf dari Local Storage (PWA Offline Standard)
+      const savedState = JSON.parse(localStorage.getItem('pod_retur_state'));
+      if (savedState) {
+        ui.valHeight.value = savedState.height ?? 300;
+        ui.valSourceY.value = savedState.sourceY ?? 0;
+        ui.valTargetY.value = savedState.targetY ?? 0;
+        
+        state.height = savedState.height ?? 300;
+        state.sourceY = savedState.sourceY ?? 0;
+        state.targetY = savedState.targetY ?? 0;
+      }
+
       const inputs = [ui.valHeight, ui.valSourceY, ui.valTargetY];
 
       const updateValues = () => {
         state.height = parseInt(ui.valHeight.value) || 0;
         state.sourceY = parseInt(ui.valSourceY.value) || 0;
         state.targetY = parseInt(ui.valTargetY.value) || 0;
+        
+        // Auto-save draf secara real-time
+        localStorage.setItem('pod_retur_state', JSON.stringify({
+          height: state.height,
+          sourceY: state.sourceY,
+          targetY: state.targetY
+        }));
+        
         render();
       };
 
@@ -184,6 +204,15 @@
       handleLock({ target: ui.toggleLock });
 
       ui.btnDownload.addEventListener('click', downloadImage);
+
+      // Indikator UI Mode Offline & Online
+      window.addEventListener('offline', () => {
+        showToast('<i class="fas fa-wifi-slash"></i> Anda sedang offline (Mode PWA aktif)', true);
+      });
+      
+      window.addEventListener('online', () => {
+        showToast('<i class="fas fa-wifi"></i> Koneksi kembali pulih', false);
+      });
 
       // Register Service Worker
       if ('serviceWorker' in navigator) {
@@ -196,9 +225,9 @@
                 const newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
                   if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    if (confirm('Versi baru tersedia. Muat ulang sekarang?')) {
-                      window.location.reload();
-                    }
+                    // Update agresif agar tidak terjadi cache bentrok
+                    showToast('<i class="fas fa-sync fa-spin"></i> Memperbarui aplikasi...', false);
+                    setTimeout(() => window.location.reload(), 1500);
                   }
                 });
               });
@@ -324,7 +353,21 @@
     }
 
     // ==================== DOWNLOAD & RESET ====================
-    function showToast() {
+    function showToast(customMessage = null, isWarning = false) {
+      if (customMessage) {
+        ui.toastNotif.innerHTML = customMessage;
+      } else {
+        ui.toastNotif.innerHTML = '<i class="fas fa-check-circle"></i> Tersimpan!';
+      }
+
+      if (isWarning) {
+        ui.toastNotif.classList.remove('bg-emerald-600');
+        ui.toastNotif.classList.add('bg-slate-600');
+      } else {
+        ui.toastNotif.classList.remove('bg-slate-600');
+        ui.toastNotif.classList.add('bg-emerald-600');
+      }
+
       ui.toastNotif.classList.remove('opacity-0');
       setTimeout(() => {
         ui.toastNotif.classList.add('opacity-0');
@@ -371,3 +414,4 @@
   </script>
 </body>
 </html>
+

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pod-retur-v17';
+const CACHE_NAME = 'pod-retur-v18';
 
 const ASSETS_TO_CACHE = [
   './',
