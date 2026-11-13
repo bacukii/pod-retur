@@ -1,4 +1,5 @@
-const CACHE_NAME = 'pod-retur-v16';
+const CACHE_NAME = 'pod-retur-v17';
+
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -11,24 +12,22 @@ const ASSETS_TO_CACHE = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(ASSETS_TO_CACHE))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -36,21 +35,31 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
+      if (cachedResponse) {
+        return cachedResponse;
+      }
 
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || (networkResponse.type !== 'basic' && networkResponse.type !== 'cors')) {
+      return fetch(event.request)
+        .then((networkResponse) => {
+          // Hanya cache response yang valid
+          if (
+            !networkResponse ||
+            networkResponse.status !== 200 ||
+            (networkResponse.type !== 'basic' && networkResponse.type !== 'cors')
+          ) {
+            return networkResponse;
+          }
+
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+
           return networkResponse;
-        }
-
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
-
-        return networkResponse;
-      }).catch(() => {
-        console.log('Offline dan resource tidak ditemukan di cache:', event.request.url);
-      });
+        })
+        .catch(() => {
+          console.log('[SW] Offline & tidak ada di cache:', event.request.url);
+        });
     })
   );
 });
-
