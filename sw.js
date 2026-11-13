@@ -1,6 +1,5 @@
-const CACHE_NAME = 'pod-retur-v19'; // Jangan lupa naikkan versi!
+const CACHE_NAME = 'pod-retur-v19'; // Versi dinaikkan ke v19
 
-// Pisahkan aset wajib (lokal) dan aset opsional/berat (CDN)
 const LOCAL_ASSETS = [
   './',
   './index.html',
@@ -17,11 +16,16 @@ const CDN_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // 1. Cache aset eksternal/CDN secara asinkron tanpa memblokir instalasi
+      // 1. Cache CDN secara manual dengan mode 'no-cors'
+      // Ini akan menghasilkan "Opaque Response" yang kebal dari error CORS
       CDN_ASSETS.forEach((url) => {
-        cache.add(url).catch((err) => console.warn('[SW] Gagal pre-cache CDN (Aman diabaikan):', url));
+        const req = new Request(url, { mode: 'no-cors' });
+        fetch(req)
+          .then((res) => cache.put(req, res))
+          .catch((err) => console.warn('[SW] Gagal fetch CDN:', url));
       });
-      // 2. Cache aset lokal wajib secara all-or-nothing
+      
+      // 2. Cache aset lokal (wajib berhasil)
       return cache.addAll(LOCAL_ASSETS);
     }).then(() => self.skipWaiting())
   );
@@ -40,23 +44,21 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Hanya proses metode GET dan URL HTTP/HTTPS
+  // Hanya proses GET request dengan skema HTTP/HTTPS
   if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
+      // Jika ada di cache, langsung kembalikan
       if (cachedResponse) {
         return cachedResponse;
       }
 
+      // Jika tidak ada, ambil dari jaringan
       return fetch(event.request)
         .then((networkResponse) => {
-          // Validasi response jaringan
-          if (
-            !networkResponse ||
-            networkResponse.status !== 200 ||
-            (networkResponse.type !== 'basic' && networkResponse.type !== 'cors')
-          ) {
+          // Izinkan file disimpan ke cache JIKA: status 200 (sukses) ATAU tipenya 'opaque' (hasil dari no-cors)
+          if (!networkResponse || (networkResponse.status !== 200 && networkResponse.type !== 'opaque')) {
             return networkResponse;
           }
 
@@ -68,7 +70,7 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          console.log('[SW] Offline & tidak ada di cache:', event.request.url);
+          console.log('[SW] Mode Offline & aset tidak ada di cache:', event.request.url);
         });
     })
   );
