@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pod-retur-v20';
+const CACHE_NAME = 'pod-retur-v21';
 
 const LOCAL_ASSETS = [
   './',
